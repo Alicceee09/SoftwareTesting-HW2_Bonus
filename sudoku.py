@@ -1,5 +1,4 @@
 import copy
-import random
 
 
 class SudokuBoard:
@@ -32,21 +31,20 @@ class SudokuBoard:
                     return (i, j)
         return None
 
-    def solve(self, randomize=False):
+    def solve(self):
         find = self.find_empty()
         if not find:
             return True
+        else:
+            row, col = find
 
-        row, col = find
-        numbers = list(range(1, self.size + 1))
-        if randomize:
-            random.shuffle(numbers)
-
-        for num in numbers:
+        for num in range(1, self.size + 1):
             if self.is_valid(row, col, num):
                 self.grid[row][col] = num
-                if self.solve(randomize):
+
+                if self.solve():
                     return True
+
                 self.grid[row][col] = 0
 
         return False

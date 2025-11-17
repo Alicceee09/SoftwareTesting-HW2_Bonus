@@ -1,5 +1,5 @@
 import copy
-
+import random
 
 class SudokuBoard:
     def __init__(self, grid):
@@ -31,20 +31,52 @@ class SudokuBoard:
                     return (i, j)
         return None
 
-    def solve(self):
+    def solve(self, randomize=False):
         find = self.find_empty()
         if not find:
             return True
-        else:
-            row, col = find
 
-        for num in range(1, self.size + 1):
+        row, col = find
+        numbers = list(range(1, self.size + 1))
+        if randomize:
+            random.shuffle(numbers)
+
+        for num in numbers:
             if self.is_valid(row, col, num):
                 self.grid[row][col] = num
-
-                if self.solve():
+                if self.solve(randomize):
                     return True
-
                 self.grid[row][col] = 0
 
         return False
+
+
+def generate(difficulty):
+    empty_grid = [[0] * 9 for _ in range(9)]
+    solution_seed = SudokuBoard(empty_grid)
+    solution_seed.solve(randomize=True)
+    solution_grid = copy.deepcopy(solution_seed.grid)
+
+    puzzle_board = SudokuBoard(solution_grid)
+    cells_to_remove = difficulty
+
+    while cells_to_remove > 0:
+        row = random.randint(0, 8)
+        col = random.randint(0, 8)
+
+        if puzzle_board.grid[row][col] == 0:
+            continue
+
+        removed_value = puzzle_board.grid[row][col]
+        puzzle_board.grid[row][col] = 0
+
+        attempt_board = SudokuBoard(puzzle_board.grid)
+        attempt_board.solve()
+
+        if attempt_board.grid == solution_grid:
+            cells_to_remove -= 1
+        else:
+            puzzle_board.grid[row][col] = removed_value
+
+    solution_board = SudokuBoard(solution_grid)
+    return puzzle_board, solution_board

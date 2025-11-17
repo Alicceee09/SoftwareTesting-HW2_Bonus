@@ -1,4 +1,4 @@
-from sudoku import SudokuBoard, generate
+from sudoku import SudokuBoard
 
 
 def test_is_valid():

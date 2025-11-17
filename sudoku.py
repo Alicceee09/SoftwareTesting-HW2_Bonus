@@ -24,3 +24,29 @@ class SudokuBoard:
                     return False
 
         return True
+
+    def find_empty(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.grid[i][j] == 0:
+                    return (i, j)
+        return None
+
+    def solve(self, randomize=False):
+        find = self.find_empty()
+        if not find:
+            return True
+
+        row, col = find
+        numbers = list(range(1, self.size + 1))
+        if randomize:
+            random.shuffle(numbers)
+
+        for num in numbers:
+            if self.is_valid(row, col, num):
+                self.grid[row][col] = num
+                if self.solve(randomize):
+                    return True
+                self.grid[row][col] = 0
+
+        return False

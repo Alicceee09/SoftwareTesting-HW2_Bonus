@@ -1,4 +1,4 @@
-from sudoku import SudokuBoard
+from sudoku import SudokuBoard, generate
 
 
 def test_is_valid():
@@ -48,3 +48,17 @@ def test_solve():
     puzzle = SudokuBoard(puzzle_grid)
     assert puzzle.solve() is True
     assert puzzle.grid == solution_grid
+
+
+def test_generate():
+    difficulty = 45  # Number of cells to remove
+    puzzle_board, solution_board = generate(difficulty)
+
+    # 1. Validate the number of empty cells
+    empty_cells = sum(row.count(0) for row in puzzle_board.grid)
+    assert empty_cells == difficulty
+
+    # 2. Validate that the solution is correct
+    puzzle_copy = SudokuBoard(puzzle_board.grid)
+    assert puzzle_copy.solve() is True
+    assert puzzle_copy.grid == solution_board.grid

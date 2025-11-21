@@ -50,6 +50,34 @@ class SudokuBoard:
 
         return False
 
+    # 2-1 Uniqueness Guarantee in Generator
+    def count_solutions(self, limit=2):
+        count = 0
+
+        def backtrack():
+            nonlocal count
+
+            if count >= limit:
+                return
+
+            find = self.find_empty()
+            if not find:
+                count += 1
+                return
+
+            row, col = find
+            for num in range(1, self.size + 1):
+                if self.is_valid(row, col, num):
+                    self.grid[row][col] = num
+                    backtrack()
+                    self.grid[row][col] = 0
+
+                    if count >= limit:
+                        return
+
+        backtrack()
+        return count
+
 
 def generate(difficulty):
     empty_grid = [[0] * 9 for _ in range(9)]
@@ -60,7 +88,12 @@ def generate(difficulty):
     puzzle_board = SudokuBoard(solution_grid)
     cells_to_remove = difficulty
 
-    while cells_to_remove > 0:
+    attempts = 0
+    max_attempts = difficulty * 10  # avoid infinite loop
+
+    while cells_to_remove > 0 and attempts < max_attempts:
+        attempts += 1
+
         row = random.randint(0, 8)
         col = random.randint(0, 8)
 
@@ -71,9 +104,9 @@ def generate(difficulty):
         puzzle_board.grid[row][col] = 0
 
         attempt_board = SudokuBoard(puzzle_board.grid)
-        attempt_board.solve()
+        num_solutions = attempt_board.count_solutions(limit=2)
 
-        if attempt_board.grid == solution_grid:
+        if num_solutions == 1:
             cells_to_remove -= 1
         else:
             puzzle_board.grid[row][col] = removed_value

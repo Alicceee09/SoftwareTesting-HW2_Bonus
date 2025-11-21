@@ -1,5 +1,5 @@
 from sudoku import SudokuBoard, generate
-from sudoku import rate_difficulty
+from sudoku import rate_difficulty, validate_puzzle
 
 
 def test_is_valid():
@@ -106,6 +106,69 @@ def test_count_solutions_multiple_solutions():
     ]
     board = SudokuBoard(grid)
     assert board.count_solutions(limit=2) == 2
+
+
+def test_validate_puzzle_unsolvable():
+    # Inconsistent givens should be flagged as unsolvable
+    grid = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        [9, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    try:
+        validate_puzzle(grid)
+    except ValueError as exc:
+        assert "unsolvable" in str(exc).lower()
+    else:
+        raise AssertionError("Expected unsolvable puzzle to raise ValueError")
+
+
+def test_validate_puzzle_invalid_values():
+    # Values outside 0-9 should be rejected
+    grid = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 10],
+        [9, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    try:
+        validate_puzzle(grid)
+    except ValueError as exc:
+        assert "0-9" in str(exc)
+    else:
+        raise AssertionError("Expected invalid values to raise ValueError")
+
+
+def test_validate_puzzle_given_conflict():
+    # Duplicate givens in a row should be rejected
+    grid = [
+        [5, 5, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    try:
+        validate_puzzle(grid)
+    except ValueError as exc:
+        assert "violate" in str(exc).lower()
+    else:
+        raise AssertionError("Expected conflicting givens to raise ValueError")
 
 
 def test_rate_difficulty_easy():

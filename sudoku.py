@@ -78,6 +78,47 @@ class SudokuBoard:
         backtrack()
         return count
 
+# 2.3: Difficulty Rating Engine
+
+def validate_puzzle(grid):
+    """
+    Validate the given puzzle:
+    - Must be 9x9 integers.
+    - Values must be 0-9 where 0 denotes empty.
+    - Givens must not conflict by Sudoku rules.
+    - Puzzle must be solvable (at least one solution exists).
+    """
+    if not isinstance(grid, list) or len(grid) != 9:
+        raise ValueError("Grid must be a 9x9 list")
+    for row in grid:
+        if not isinstance(row, list) or len(row) != 9:
+            raise ValueError("Grid must be a 9x9 list")
+        for val in row:
+            if not isinstance(val, int):
+                raise ValueError("Grid values must be integers 0-9")
+            if val < 0 or val > 9:
+                raise ValueError("Grid values must be integers 0-9")
+
+    board = SudokuBoard(grid)
+
+    # Check for conflicting givens
+    for r in range(9):
+        for c in range(9):
+            val = board.grid[r][c]
+            if val == 0:
+                continue
+            board.grid[r][c] = 0
+            if not board.is_valid(r, c, val):
+                raise ValueError("Given numbers violate Sudoku rules")
+            board.grid[r][c] = val
+
+    # Check solvability
+    solvable_board = SudokuBoard(board.grid)
+    if not solvable_board.solve():
+        raise ValueError("Puzzle is unsolvable")
+
+    return True
+
 
 def generate(difficulty):
     empty_grid = [[0] * 9 for _ in range(9)]
@@ -124,7 +165,7 @@ def rate_difficulty(grid):
     Medium: requires Naked/Hidden Pairs or Pointing Pairs (plus singles)
     Hard: requires techniques beyond the above (falls back to full solver)
     """
-    
+
     def build_candidates(state_grid):
         candidates = [[set() for _ in range(9)] for _ in range(9)]
         temp_board = SudokuBoard(state_grid)

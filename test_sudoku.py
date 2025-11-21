@@ -62,3 +62,46 @@ def test_generate():
     puzzle_copy = SudokuBoard(puzzle_board.grid)
     assert puzzle_copy.solve() is True
     assert puzzle_copy.grid == solution_board.grid
+
+def test_generate_unique_solution():
+    difficulty = 45
+    puzzle_board, solution_board = generate(difficulty)
+
+    tmp = SudokuBoard(puzzle_board.grid)
+    num_solutions = tmp.count_solutions(limit=2)
+
+    assert num_solutions == 1
+
+
+def test_count_solutions_no_solution():
+    # Clearly inconsistent givens yield zero solutions
+    grid = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        [9, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    board = SudokuBoard(grid)
+    assert board.count_solutions(limit=2) == 0
+
+
+def test_count_solutions_multiple_solutions():
+    # A sparse grid with a complete first row should allow multiple completions
+    grid = [
+        [5, 3, 4, 6, 7, 8, 9, 1, 2],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    board = SudokuBoard(grid)
+    assert board.count_solutions(limit=2) == 2
